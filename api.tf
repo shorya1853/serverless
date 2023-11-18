@@ -8,12 +8,20 @@ resource "aws_api_gateway_resource" "example" {
   rest_api_id = aws_api_gateway_rest_api.example.id
 }
 
+resource "aws_api_gateway_request_validator" "example" {
+  name                        = "header validation"
+  rest_api_id                 = aws_api_gateway_rest_api.example.id
+  validate_request_body       = true
+  validate_request_parameters = true
+}
+
 resource "aws_api_gateway_method" "example" {
   authorization = "NONE"
   http_method   = "POST"
   resource_id   = aws_api_gateway_resource.example.id
   rest_api_id   = aws_api_gateway_rest_api.example.id
-   request_parameters = {
+  request_validator_id = aws_api_gateway_request_validator.example.id
+  request_parameters = {
     "method.request.header.Content-Type" = true
   }
 }
@@ -34,14 +42,6 @@ resource "aws_api_gateway_stage" "example" {
   deployment_id = aws_api_gateway_deployment.example.id
   rest_api_id   = aws_api_gateway_rest_api.example.id
   stage_name    = "prod"
-}
-
-
-resource "aws_api_gateway_request_validator" "example" {
-  name                        = "example"
-  rest_api_id                 = aws_api_gateway_rest_api.example.id
-  validate_request_body       = true
-  validate_request_parameters = true
 }
 
 resource "aws_api_gateway_method_response" "response_200" {
